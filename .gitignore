@@ -3,3 +3,4 @@ out/
 *.info
 *.out
 *.sqlite3
+*.pyc
