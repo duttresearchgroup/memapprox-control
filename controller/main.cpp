@@ -7,22 +7,50 @@
 #include "PID.h"
 #include "recalibrate.h"
 
-main(int argc, char *argv[])
+#include <fstream>
+#include <cstdlib>
+#include <iostream>
+using namespace std;
+
+double getScore()
 {
+    ifstream ifile("../tmp.txt", ios::in);
+
+    //check to see that the file was opened correctly:
+    if (!ifile.is_open()) {
+        std::cerr << "There was a problem opening the input file!\n";
+        exit(1);//exit or do additional error checking
+    }
+
+    double num = 0.0;
+    //keep storing values from the text file so long as data exists:
+    ifile >> num;
+
+    return num;
+}
+
+int main(int argc, char *argv[])
+{
+    char buff[1000];
     int repeat_frame = 1;
+    int num_frames=10;
+
     int control_mode = 0; // 0: PID, 1: Recalibration
 
-    bool enable_calibration = false;
+    bool enable_calibration = true;
     int sampling_frequency = 1;
     bool report_errors = false;
 
     int set_point_ptr = -1;
     int max_set_points = 3;
     int frames_set_point[] = {1, 400, 800};
-    double set_points[] = {0.01, 0.001, 0.005};
+    double set_points[] = {0.010, 0.001, 0.005};
 
     double ctrl_out_adjustment = 5.0002e-04;
     double set_point = 0.02;
+
+    double current_read_ber = 0;
+    double current_write_ber = 0;
 
     /****************************************************************************
      * Controllers.
@@ -56,9 +84,14 @@ main(int argc, char *argv[])
                           0);
     pid.setSetpoint(set_point);
 
+    double knob1, knob2;
+
+    if (system(NULL)) puts ("Ok");
+        else exit (EXIT_FAILURE);
+
     /****************************************************************************
     * Main loop
-    /****************************************************************************/
+    *****************************************************************************/
 
     for (int i = 1; i <= num_frames; i++)
     {
@@ -76,6 +109,8 @@ main(int argc, char *argv[])
             }
         }
 
+        printf("i : %d \t set_point: %lf\n", i,set_point);
+        
         /****************************************************************************
          * Control stuff: repeat frames
          ****************************************************************************/
@@ -89,68 +124,64 @@ main(int argc, char *argv[])
 
             if (report_errors || (perform_calibration && enable_calibration))
             {
-                unsigned char *edge_golden;
+                //printf("Please enter the current error (within repeat stage) : ");
+                //scanf("%lf",&a);
 
-                double current_read_ber = 0;
-                double current_write_ber = 0;
+                snprintf(buff, sizeof(buff), 
+                "cd .. && python pi_runSniper.py %s=%lf %s=%lf %s=%lf %s=%lf %s=%s %s=%d",
+                    "knob1", knob1, 
+                    "knob2", knob2,
+                    "read_ber", current_read_ber,
+                    "write_ber", current_write_ber,
+                    "isCalibrateFrame", "true",
+                    "jump_to_frame", i
+                );
+                
+                cout << buff <<endl;
 
-                get_read_ber(&current_read_ber);
-                get_write_ber(&current_write_ber);
+                int ret=system(buff);
+                double a = getScore();
 
-                set_read_ber(0);
-                set_write_ber(0);
+                printf ("The score returned was: %lf\n",a);
 
-                canny(image, rows, cols, sigma, tlow, thigh, &edge_golden, dirfilename);
-
-                set_read_ber(current_read_ber);
-                set_write_ber(current_write_ber);
-
-                error += score_me(edge_golden, edge, cols, rows);
+                error += a;
                 if (j == repeat_frame)
                 {
-                    printf("frame = %04d, error_me = %f, error_r = %f, current_knob = %f, set_point = %f\n",
-                           i, error / (double)repeat_frame, score_r(edge_golden, edge, cols, rows), current_write_ber, set_point);
+                    printf("frame = %04d, error_me = %f, current_knob = %f, set_point = %f\n",
+                           i, error / (double)repeat_frame, current_write_ber, set_point);
                 }
-
-                free(edge_golden);
             }
 
             if (perform_calibration && (j == repeat_frame))
             {
-                double current_read_ber = 0;
-                double current_write_ber = 0;
-
-                get_read_ber(&current_read_ber);
-                get_write_ber(&current_write_ber);
-
-                double new_read_ber = 0;
-                double new_write_ber = 0;
-
+                double new_ber;
                 if (control_mode == 0)
-                { // PID
+                { 
+                    // PID
                     // get new settings from PID controller
-                    double knob1 = pid.getOutput(error / (double)j, set_point);
-                    //printf("knob1 setting = %f\n", knob1);
+                    knob1 = pid.getOutput(error / (double)j, set_point);
+                    printf("knob1 setting = %f\n", knob1);
 
-                    double knob2 = ctrl.nextInput(error / (double)j);
-                    //printf("knob2 setting = %f\n", knob2);
+                    knob2 = ctrl.nextInput(error / (double)j);
+                    printf("knob2 setting = %f\n", knob2);
 
-                    new_write_ber = knob2;
-                    new_write_ber += ctrl_out_adjustment;
+                    new_ber = knob2;
+                    new_ber += ctrl_out_adjustment;
                 }
                 else
-                { // Manual Recalibration
+                { 
+                    // Manual Recalibration
                     double knob3 = manual_calibrations(current_write_ber, error, set_point);
-                    new_write_ber = knob3;
+                    new_ber = knob3;
                 }
 
-                new_write_ber = new_write_ber < 0 ? 0 : new_write_ber;
-                // printf("new_write_ber = %f\n", new_write_ber);
+                new_ber = new_ber < 0 ? 0 : new_ber;
+                // printf("new_ber = %f\n", new_ber);
 
                 if (enable_calibration)
                 {
-                    // set_read_ber(new_read_ber);
-                    set_write_ber(new_write_ber);
+                    // current_read_ber = new_ber;
+                    current_write_ber = new_ber;
                 }
             }
         }

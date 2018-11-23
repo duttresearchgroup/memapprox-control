@@ -1,0 +1,58 @@
+PUT approx
+PUT approx/_mapping/model 
+{
+    "properties": {
+      "affected": {
+        "type": "keyword"
+      },
+      "frame": {
+        "type": "keyword"
+      },
+      "index": {
+        "type": "integer"
+      },
+      "readError": {
+        "type": "double"
+      },
+      "scoreMe": {
+        "type": "double"
+      },
+      "writeError": {
+        "type": "double"
+      }
+    }
+}
+
+PUT siso
+PUT siso/_mapping/siso_map
+{
+    "properties": {
+      "affected": {
+        "type": "keyword"
+      },
+      "dataset": {
+        "type": "keyword"
+      },
+      "frame": {
+        "type": "integer"
+      },
+      "readError": {
+        "type": "double"
+      },
+      "writeError": {
+        "type": "double"
+      },
+      "scoreMe": {
+        "type": "double"
+      },
+      "isCalibrateFrame": {
+        "type": "keyword"
+      },
+      "knob": {
+        "type": "keyword"
+      },
+      "knob2": {
+        "type": "keyword"
+      }
+    }  
+}
