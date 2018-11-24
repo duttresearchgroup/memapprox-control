@@ -140,7 +140,7 @@ def process(path):
       response = urllib2.urlopen(req, json.dumps(elasticData))
 
 def returnScore():
-  f = open("tmp.txt", "w")
+  f = open("tmp"+jump_to_frame+".txt", "w")
   f.write(str(finalScore))
 
 def main(argv):

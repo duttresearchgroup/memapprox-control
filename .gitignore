@@ -1,4 +1,6 @@
 out/
+in/
+*.fuse_*
 *.cfg
 *.info
 *.out

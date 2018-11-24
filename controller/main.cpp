@@ -12,9 +12,11 @@
 #include <iostream>
 using namespace std;
 
-double getScore()
+char buff_pid[1000];
+
+double getScore(int frame)
 {
-    ifstream ifile("../tmp.txt", ios::in);
+    ifstream ifile("../tmp"+to_string(frame)+".txt", ios::in);
 
     //check to see that the file was opened correctly:
     if (!ifile.is_open()) {
@@ -26,12 +28,16 @@ double getScore()
     //keep storing values from the text file so long as data exists:
     ifile >> num;
 
+    snprintf(buff_pid, sizeof(buff_pid), "rm -rf ../tmp%d.txt",frame);
+    cout << buff_pid << endl;
+
+    system(buff_pid);
+
     return num;
 }
 
 int main(int argc, char *argv[])
 {
-    char buff[1000];
     int repeat_frame = 1;
     int num_frames=1000;
 
@@ -127,7 +133,7 @@ int main(int argc, char *argv[])
                 //printf("Please enter the current error (within repeat stage) : ");
                 //scanf("%lf",&a);
 
-                snprintf(buff, sizeof(buff), 
+                snprintf(buff_pid, sizeof(buff_pid), 
                 "cd .. && python pi_runSniper.py %s=%lf %s=%lf %s=%lf %s=%lf %s=%s %s=%d %s=%lf",
                     "knob1", knob1, 
                     "knob2", knob2,
@@ -138,10 +144,10 @@ int main(int argc, char *argv[])
                     "set_point", set_point
                 );
                 
-                cout << buff <<endl;
+                cout << buff_pid <<endl;
 
-                int ret=system(buff);
-                double a = getScore();
+                int ret=system(buff_pid);
+                double a = getScore(i);
 
                 printf ("The score returned was: %lf\n",a);
 
