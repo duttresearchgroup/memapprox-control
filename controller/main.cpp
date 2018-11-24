@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
 {
     char buff[1000];
     int repeat_frame = 1;
-    int num_frames=10;
+    int num_frames=1000;
 
     int control_mode = 0; // 0: PID, 1: Recalibration
 
@@ -128,13 +128,14 @@ int main(int argc, char *argv[])
                 //scanf("%lf",&a);
 
                 snprintf(buff, sizeof(buff), 
-                "cd .. && python pi_runSniper.py %s=%lf %s=%lf %s=%lf %s=%lf %s=%s %s=%d",
+                "cd .. && python pi_runSniper.py %s=%lf %s=%lf %s=%lf %s=%lf %s=%s %s=%d %s=%lf",
                     "knob1", knob1, 
                     "knob2", knob2,
                     "read_ber", current_read_ber,
                     "write_ber", current_write_ber,
                     "isCalibrateFrame", "true",
-                    "jump_to_frame", i
+                    "jump_to_frame", i,
+                    "set_point", set_point
                 );
                 
                 cout << buff <<endl;

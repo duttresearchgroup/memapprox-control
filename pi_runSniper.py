@@ -43,6 +43,7 @@ index = 0
 knob1=0
 knob2=0
 finalScore=0
+target_ber=0
 
 def launchCannyInSniper(inputImage, outputImage):
     # Modified sniper with modified canny
@@ -82,12 +83,11 @@ elasticData={}
 
 def process(path):
     global finalScore
-
-    #  ************************************************************
-    #  Sniper code goes here***************************************
     global write_ber
     global read_ber
 
+    #  ************************************************************
+    #  Sniper code goes here***************************************
     vidObj = cv2.VideoCapture(path)
     count = 0
     success = 1
@@ -118,7 +118,6 @@ def process(path):
             finalScore = eval.score_me("out/%s_o_%d.pgm" % (frameName, count), "out/%s_%d.pgm" % (frameName, count))
         count += 1
     print ("total frames: ", count)
-  
     #  ************************************************************
 
     print finalScore
@@ -132,6 +131,7 @@ def process(path):
     elasticData['isCalibrateFrame'] = isCalibrateFrame
     elasticData['knob']  = knob1
     elasticData['knob2'] = knob2
+    elasticData['target'] = target_ber
 
     print elasticData
     if (upload_to_elastic):
@@ -150,7 +150,7 @@ def main(argv):
     global frameName
     global jump_to_frame
     global isCalibrateFrame
-
+    global target_ber
     global knob1
     global knob2
 
@@ -169,6 +169,8 @@ def main(argv):
           knob1=value
         if(key=='knob2'):
           knob2=value
+        if(key=='set_point'):
+          target_ber=value
             
     if "mp4" in input:
       process(input)
