@@ -8,3 +8,6 @@ $(TARGET): $(SRCS) Makefile
 
 clean:
 	$(RM) $(TARGET)
+
+run:
+	./$(TARGET)

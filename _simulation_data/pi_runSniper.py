@@ -125,9 +125,9 @@ def process(path):
     print ("total frames: ", count)
     #  ************************************************************
 
-    print finalScore
+    print (finalScore)
 
-    elasticData['dataset'] = frameName+'_kp_0.00001_ki_0.0005'
+    elasticData['dataset'] = frameName+'_repeat_5_manual'
     elasticData['affected'] = affected
     elasticData['frame'] = jump_to_frame
     elasticData['readError']  = read_ber
@@ -138,7 +138,7 @@ def process(path):
     elasticData['knob2'] = knob2
     elasticData['target'] = target_ber
 
-    print elasticData
+    print (elasticData)
     if (upload_to_elastic):
       req = urllib2.Request('http://deep.ics.uci.edu:9200/siso/siso_map/')
       req.add_header('Content-Type', 'application/json')

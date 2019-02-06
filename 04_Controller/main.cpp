@@ -16,7 +16,7 @@ char buff_pid[1000];
 
 double getScore(int frame)
 {
-    ifstream ifile("../tmp"+to_string(frame)+".txt", ios::in);
+    ifstream ifile("../_simulation_data/tmp"+to_string(frame)+".txt", ios::in);
 
     //check to see that the file was opened correctly:
     if (!ifile.is_open()) {
@@ -28,7 +28,7 @@ double getScore(int frame)
     //keep storing values from the text file so long as data exists:
     ifile >> num;
 
-    snprintf(buff_pid, sizeof(buff_pid), "rm -rf ../tmp%d.txt",frame);
+    snprintf(buff_pid, sizeof(buff_pid), "rm -rf ../_simulation_data/tmp%d.txt",frame);
     cout << buff_pid << endl;
 
     system(buff_pid);
@@ -39,20 +39,24 @@ double getScore(int frame)
 int main(int argc, char *argv[])
 {
     int repeat_frame = 1;
-    int num_frames=1000;
+    int num_frames=1200;
 
     int control_mode = 0; // 0: PID, 1: Recalibration
 
     bool enable_calibration = true;
-    int sampling_frequency = 1;
-    bool report_errors = false;
+    int sampling_frequency = 5;
+    bool report_errors = true;
 
     int set_point_ptr = -1;
     int max_set_points = 3;
     int frames_set_point[] = {1, 400, 800};
     double set_points[] = {0.08, 0.01, 0.05};
 
-    double ctrl_out_adjustment = 1.6113e-05;
+    // For DRAM
+    // double set_points[] = {0.005, 0.001, 0.003};
+
+    // For L2
+    double ctrl_out_adjustment = 1.4863e-05;;
                                  
     double set_point = 0.02;
 
@@ -71,9 +75,20 @@ int main(int argc, char *argv[])
     PIDController;
     PIDController ctrl;
     
+    // L1
     ctrl.pid.gains(0.00001064,
                    0.0005067,
                    0);
+    // For L2
+    // ctrl.pid.gains(1.06e-05,
+    //                0.0005,
+    //                0);
+
+    // DRAM READs
+    // ctrl.pid.gains(0.000103,
+    //                 0.00489,
+    //                0);
+    
     ctrl.pid.period(0.033);
     ctrl.errorFilter.ref(set_point);
 
@@ -136,7 +151,7 @@ int main(int argc, char *argv[])
                 //scanf("%lf",&a);
 
                 snprintf(buff_pid, sizeof(buff_pid), 
-                "cd .. && python pi_runSniper.py %s=%lf %s=%lf %s=%lf %s=%lf %s=%s %s=%d %s=%lf",
+                "cd ../_simulation_data && python pi_runSniper.py %s=%lf %s=%lf %s=%lf %s=%lf %s=%s %s=%d %s=%lf",
                     "knob1", knob1, 
                     "knob2", knob2,
                     "read_ber", current_read_ber,
@@ -164,7 +179,7 @@ int main(int argc, char *argv[])
             if (perform_calibration && (j == repeat_frame))
             {
                 double new_ber;
-                if (control_mode == 0)
+                if (control_mode == 1)
                 { 
                     // PID
                     // get new settings from PID controller

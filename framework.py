@@ -53,8 +53,6 @@ def launchCannyInSniper(inputImage, outputImage):
         "-g", "fault_injection/type=\"toggle\"",
         "-g", "fault_injection/affected="+affected,
         # "-g", "perf_model/cache/levels=0",
-        # "-g", "perf_model/l1_dcache/cache_size=0",
-        # "-g", "perf_model/l2_cache/cache_size=0",
         "--cache-only",
         #"--gdb-wait",
         "--", appPath,

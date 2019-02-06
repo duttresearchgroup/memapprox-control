@@ -1,5 +1,5 @@
-out/
-in/
+_simulation_data/out/
+_simulation_data/in/
 *.fuse_*
 *.cfg
 *.info
