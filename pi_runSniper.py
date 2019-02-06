@@ -86,6 +86,8 @@ def process(path):
     global write_ber
     global read_ber
 
+    print (path)
+    
     #  ************************************************************
     #  Sniper code goes here***************************************
     vidObj = cv2.VideoCapture(path)
@@ -102,6 +104,9 @@ def process(path):
         if (count == jump_to_frame):
             gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
             cv2.imwrite("in/%s_%d.pgm" % (frameName, count), gray_image)
+
+            print(str(write_ber))
+            print(str(read_ber))
 
             launchCannyInSniper(
                 "in/%s_%d.pgm" % (frameName, count),
@@ -122,7 +127,7 @@ def process(path):
 
     print finalScore
 
-    elasticData['dataset'] = frameName
+    elasticData['dataset'] = frameName+'_kp_0.00001_ki_0.0005'
     elasticData['affected'] = affected
     elasticData['frame'] = jump_to_frame
     elasticData['readError']  = read_ber
@@ -140,12 +145,13 @@ def process(path):
       response = urllib2.urlopen(req, json.dumps(elasticData))
 
 def returnScore():
-  f = open("tmp"+jump_to_frame+".txt", "w")
+  f = open("tmp"+str(jump_to_frame)+".txt", "w")
   f.write(str(finalScore))
 
 def main(argv):
     global write_ber
     global read_ber
+
     global index
     global frameName
     global jump_to_frame
@@ -158,9 +164,9 @@ def main(argv):
         key=x.partition("=")[0]
         value=x.partition("=")[2]
         if(key=='write_ber'):
-          write_ber=value  
+          write_ber=float(value)
         if(key=='read_ber'):
-          read_ber=value
+          read_ber=float(value)
         if(key=='jump_to_frame'):
           jump_to_frame=int(value)
         if(key=='isCalibrateFrame'):
@@ -171,7 +177,7 @@ def main(argv):
           knob2=value
         if(key=='set_point'):
           target_ber=value
-            
+    
     if "mp4" in input:
       process(input)
   

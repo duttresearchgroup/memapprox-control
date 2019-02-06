@@ -53,8 +53,10 @@ def launchCannyInSniper(inputImage, outputImage):
         "-g", "fault_injection/type=\"toggle\"",
         "-g", "fault_injection/affected="+affected,
         # "-g", "perf_model/cache/levels=0",
+        # "-g", "perf_model/l1_dcache/cache_size=0",
+        # "-g", "perf_model/l2_cache/cache_size=0",
         "--cache-only",
-        # "--gdb-wait",
+        #"--gdb-wait",
         "--", appPath,
         "-in", inputImage,
         "-out", outputImage,
@@ -80,14 +82,15 @@ def launchCanny(inputImage, outputImage):
 
 # Function to process images
 def processImage(inputPath):
-    launchCannyInSniper(inputPath, "out/image_"+str(write_ber)+".pgm")
+    launchCannyInSniper(inputPath, "out/%s_%s_w%s_r%s.pgm" % (frameName, affected, str(write_ber), str(read_ber)))
     # When running in HPC, we use a fixed copy, so not required to do this iteratively 
-    #launchCanny(inputPath, "out/image_o.pgm")
+    launchCanny(inputPath, "out/%s_o.pgm" % frameName)
 
     #Evaluate
     print("Processed " + inputPath +
           " having WBER " + str(write_ber) + " with score : "),
-    scoreMe = eval.score_me("out/image_"+str(write_ber)+".pgm", "out/image_o.pgm")
+
+    scoreMe = eval.score_me("out/%s_%s_w%s_r%s.pgm" % (frameName, affected, str(write_ber), str(read_ber)), "out/%s_o.pgm" %frameName)
     print scoreMe
 
     elasticData['frame'] = frameName

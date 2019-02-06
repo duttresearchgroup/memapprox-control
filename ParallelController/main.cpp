@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
   int set_point_ptr = -1;
   int max_set_points = 3;
   int frames_set_point[] = {1, 400, 800};
-  double set_points[] = {0.010, 0.001, 0.005};
+  double set_points[] = {0.08, 0.01, 0.05};
 
   double ctrl_out_adjustment = 5.0002e-04;
   double set_point = 0.02;
@@ -95,12 +95,12 @@ int main(int argc, char *argv[])
   typedef Controllers::SISO<double,
                             Filters::Error<double, 1>,
                             Filters::Average<double, MA_DEPTH>>
-      PIDController;
+  PIDController;
   PIDController ctrl;
-  ctrl.pid.gains(0.001,
-                 0.005,
+  ctrl.pid.gains(0.0784,
+                 0.0015,
                  0);
-  ctrl.pid.period(0.033);
+  ctrl.pid.period(0.042);
   ctrl.errorFilter.ref(set_point);
 
   double weights[MA_DEPTH];
@@ -129,7 +129,7 @@ int main(int argc, char *argv[])
   if (my_rank == 0)
   { /* We are the Main node */
 
-    printf("Hello World.   I am the Master Node (%s) with Rank 0.\n", host);
+    // printf("Hello World.   I am the Master Node (%s) with Rank 0.\n", host);
 
     int frame = 0;
     while (frame < MAX_FRAMES)

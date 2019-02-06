@@ -50,9 +50,10 @@ int main(int argc, char *argv[])
     int set_point_ptr = -1;
     int max_set_points = 3;
     int frames_set_point[] = {1, 400, 800};
-    double set_points[] = {0.010, 0.001, 0.005};
+    double set_points[] = {0.08, 0.01, 0.05};
 
-    double ctrl_out_adjustment = 5.0002e-04;
+    double ctrl_out_adjustment = 1.6113e-05;
+                                 
     double set_point = 0.02;
 
     double current_read_ber = 0;
@@ -69,8 +70,9 @@ int main(int argc, char *argv[])
                               Filters::Average<double, MA_DEPTH>>
     PIDController;
     PIDController ctrl;
-    ctrl.pid.gains(0.001,
-                   0.005,
+    
+    ctrl.pid.gains(0.00001064,
+                   0.0005067,
                    0);
     ctrl.pid.period(0.033);
     ctrl.errorFilter.ref(set_point);
