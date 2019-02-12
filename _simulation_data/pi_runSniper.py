@@ -44,6 +44,10 @@ knob1=0
 knob2=0
 finalScore=0
 target_ber=0
+kp=0
+ki=0
+isManual=0
+sampling=0
 
 def launchCannyInSniper(inputImage, outputImage):
     # Modified sniper with modified canny
@@ -127,7 +131,7 @@ def process(path):
 
     print (finalScore)
 
-    elasticData['dataset'] = frameName+'_repeat_5_manual'
+    elasticData['dataset'] = frameName
     elasticData['affected'] = affected
     elasticData['frame'] = jump_to_frame
     elasticData['readError']  = read_ber
@@ -137,7 +141,11 @@ def process(path):
     elasticData['knob']  = knob1
     elasticData['knob2'] = knob2
     elasticData['target'] = target_ber
-
+    elasticData['kp'] = kp
+    elasticData['ki'] = ki
+    elasticData['manual'] = isManual
+    elasticData['sampling'] = sampling
+    
     print (elasticData)
     if (upload_to_elastic):
       req = urllib2.Request('http://deep.ics.uci.edu:9200/siso/siso_map/')
@@ -159,6 +167,10 @@ def main(argv):
     global target_ber
     global knob1
     global knob2
+    global kp
+    global ki
+    global isManual
+    global sampling
 
     for x in argv[1:]:
         key=x.partition("=")[0]
@@ -177,7 +189,15 @@ def main(argv):
           knob2=value
         if(key=='set_point'):
           target_ber=value
-    
+        if(key=='kp'):
+          kp=value
+        if(key=='ki'):
+          ki=value
+        if(key=='isManual'):
+          isManual=value
+        if(key=='sampling'):
+          sampling=value
+
     if "mp4" in input:
       process(input)
   

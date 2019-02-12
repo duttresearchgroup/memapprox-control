@@ -53,6 +53,21 @@ PUT siso/_mapping/siso_map
       },
       "knob2": {
         "type": "keyword"
+      },
+      "target": {
+        "type": "double"
+      },
+      "kp": {
+        "type": "double"
+      },
+      "ki": {
+        "type": "double"
+      },
+      "manual": {
+        "type": "keyword"
+      },
+      "sampling": {
+        "type": "integer"
       }
     }  
 }
