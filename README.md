@@ -5,6 +5,10 @@ Application programmers are burdened with the difficult task of setting memory a
 Our self-adaptive approach for memory approximation eases the programmer's burden:  simply specify the desired quality as a goal, with the system deploying a formal control-theoretic approach to tune the memory reliability knobs and deliver guaranteed QoS. 
 We model quality configuration tracking as a formal quality control problem, and outline a System Identification technique that captures memory approximation effects with variations in application input and system architecture.
 
+# Pre-requisite
+In order to run the simulations, you will need a modified version of Sniper. We are currently working on a patch where Sniper is modified to support controlled BER for memory components. The patch is hosted on duttresearchgroup github in the [sniper-mem](https://github.com/duttresearchgroup/sniper-mem/tree/AddApproxKnobs) repository.
+Please checkout the `AddApproxKnobs` branch as the changes have not been merged to master branch yet. This is a work-in-progress and we will follow a peer-review process before merging the changes to master.
+
 # Steps
 The folders are organized as below :
 
@@ -22,3 +26,6 @@ To invoke the controller, run the command `make run`
 ## 5. Matlab scripts to plot the target tracking
 The Matlab script will scan for all the csv files inside `data` folder and generate the tracking figures for all of them.
 To invoke the script run the command `make`
+
+# Note
+Please note that this work is currently under review. Please contact us at drg@ics.uci.edu if you would like to use the framework.
