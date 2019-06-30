@@ -20,8 +20,6 @@ iodelay = NaN;
 Ts = 0.33;
 sys = tfest(data,np,nz,iodelay,'Ts',Ts);
 
-% sys = tfest(data,np,nz,iodelay,'Ts',Ts);
-
 %double kp=0.00001064;
 %double ki=0.0005067;
 clearvars my data

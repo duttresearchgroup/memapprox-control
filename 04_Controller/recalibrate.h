@@ -3,7 +3,7 @@
 #define UPPER_BOUND 1.1 
 #define LOWER_BOUND 0.9
 
-#define RESOLUTION 1E-6
+#define RESOLUTION 3E-6
 
 double manual_calibrations(double current_knob, double current_error, double target_error)
 {

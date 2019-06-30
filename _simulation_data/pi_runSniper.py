@@ -39,7 +39,6 @@ read_ber = float(ConfigSectionMap("FaultInjector")['read_ber'])
 write_ber = float(ConfigSectionMap("FaultInjector")['write_ber'])
 
 isCalibrateFrame='false'
-index = 0
 knob1=0
 knob2=0
 finalScore=0
@@ -84,6 +83,20 @@ def launchCanny(inputImage, outputImage):
         ])
 
 elasticData={}
+
+# Function to process images
+def processImage(inputPath):
+    launchCannyInSniper(inputPath, "out/%s_%s_w%s_r%s.pgm" % (frameName, affected, str(write_ber), str(read_ber)))
+    # When running in HPC, we use a fixed copy, so not required to do this iteratively 
+    launchCanny(inputPath, "out/%s_o.pgm" % frameName)
+
+    #Evaluate
+    print("Processed " + inputPath +
+          " having WBER " + str(write_ber) + " with score : "),
+
+    scoreMe = eval.score_me("out/%s_%s_w%s_r%s.pgm" % (frameName, affected, str(write_ber), str(read_ber)), "out/%s_o.pgm" %frameName)
+    print scoreMe
+
 
 def process(path):
     global finalScore
@@ -131,7 +144,7 @@ def process(path):
 
     print (finalScore)
 
-    elasticData['dataset'] = frameName
+    elasticData['dataset'] = frameName+'_TAGET_0.08'
     elasticData['affected'] = affected
     elasticData['frame'] = jump_to_frame
     elasticData['readError']  = read_ber
@@ -160,7 +173,6 @@ def main(argv):
     global write_ber
     global read_ber
 
-    global index
     global frameName
     global jump_to_frame
     global isCalibrateFrame
@@ -200,7 +212,9 @@ def main(argv):
 
     if "mp4" in input:
       process(input)
-  
+    else:
+      processImage(input)
+
     returnScore()
 
 if __name__ == "__main__":

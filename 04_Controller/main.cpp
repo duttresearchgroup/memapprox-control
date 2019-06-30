@@ -14,6 +14,9 @@ using namespace std;
 
 char buff_pid[1000];
 
+#define AUTOMATIC_PID 0
+#define MANUAL_RECALIBRATION 1
+
 double getScore(int frame)
 {
     ifstream ifile("../_simulation_data/tmp"+to_string(frame)+".txt", ios::in);
@@ -41,7 +44,7 @@ int main(int argc, char *argv[])
     int repeat_frame = 1;
     int num_frames=1200;
 
-    int control_mode = 0; // 0: PID, 1: Recalibration
+    int control_mode = AUTOMATIC_PID; // 0: PID, 1: Recalibration
 
     bool enable_calibration = true;
     int sampling_frequency = 5;
@@ -50,13 +53,6 @@ int main(int argc, char *argv[])
     int set_point_ptr = -1;
     int max_set_points = 3;
     int frames_set_point[] = {1, 400, 800};
-    double set_points[] = {0.08, 0.01, 0.05};
-
-    // For DRAM
-    // double set_points[] = {0.005, 0.001, 0.003};
-
-    // For L2
-    double ctrl_out_adjustment = 1.4863e-05;;
                                  
     double set_point = 0.02;
 
@@ -76,18 +72,27 @@ int main(int argc, char *argv[])
     PIDController ctrl;
     
     // L1
-    ctrl.pid.gains(0.00001064,
-                   0.0005067,
-                   0);
-    // For L2
-    // ctrl.pid.gains(1.06e-05,
-    //                0.0005,
-    //                0);
+    // double kp=0.00001064;
+    // double ki=0.0005067;
+    // double set_points[] = {0.08, 0.01, 0.05};
+    // double ctrl_out_adjustment = 1.4863e-05;
 
-    // DRAM READs
-    // ctrl.pid.gains(0.000103,
-    //                 0.00489,
-    //                0);
+    //L2
+    // double kp=1.06e-05;
+    // double ki=0.0005;
+    // double set_points[] = {0.08, 0.01, 0.05};
+    // double ctrl_out_adjustment = 1.4863e-05;
+
+    //DRAM
+    double kp=0.000103;
+    double ki=0.00489;
+    //double set_points[] = {0.02, 0.001, 0.01};
+    double set_points[] = {0.08, 0.01, 0.05};
+    double ctrl_out_adjustment = 1.4863e-05;
+    
+    ctrl.pid.gains(kp,
+                   ki,
+                   0);
     
     ctrl.pid.period(0.033);
     ctrl.errorFilter.ref(set_point);
@@ -151,14 +156,18 @@ int main(int argc, char *argv[])
                 //scanf("%lf",&a);
 
                 snprintf(buff_pid, sizeof(buff_pid), 
-                "cd ../_simulation_data && python pi_runSniper.py %s=%lf %s=%lf %s=%lf %s=%lf %s=%s %s=%d %s=%lf",
+                "cd ../_simulation_data && python pi_runSniper.py %s=%lf %s=%lf %s=%lf %s=%lf %s=%s %s=%d %s=%lf %s=%lf %s=%lf %s=%d %s=%d",
                     "knob1", knob1, 
                     "knob2", knob2,
                     "read_ber", current_read_ber,
                     "write_ber", current_write_ber,
                     "isCalibrateFrame", "true",
                     "jump_to_frame", i,
-                    "set_point", set_point
+                    "set_point", set_point,
+                    "kp", kp,
+                    "ki", ki,
+                    "isManual", control_mode,
+                    "sampling", sampling_frequency
                 );
                 
                 cout << buff_pid <<endl;
@@ -179,7 +188,7 @@ int main(int argc, char *argv[])
             if (perform_calibration && (j == repeat_frame))
             {
                 double new_ber;
-                if (control_mode == 1)
+                if (control_mode == AUTOMATIC_PID)
                 { 
                     // PID
                     // get new settings from PID controller
@@ -204,8 +213,8 @@ int main(int argc, char *argv[])
 
                 if (enable_calibration)
                 {
-                    // current_read_ber = new_ber;
-                    current_write_ber = new_ber;
+                    current_read_ber = new_ber;
+                    // current_write_ber = new_ber;
                 }
             }
         }

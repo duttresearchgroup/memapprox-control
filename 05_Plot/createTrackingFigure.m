@@ -15,7 +15,7 @@ hold(axes1,'on');
 % Create multiple lines using matrix input to plot
 plot1 = plot(X1,Y1, X1, Y2);
 set(plot1(1),'DisplayName','Observed Score','Color',[0 0.3 0.6],'LineWidth',2);
-set(plot1(2),'DisplayName','Target Score','Color',[1 0.25 0.25],'LineWidth',3);
+set(plot1(2),'DisplayName','Target Score','Color',[1 0.25 0.25],'LineWidth',3, 'LineStyle', '--');
 
 % Create ylabel
 ylabel({'Score'});
@@ -31,8 +31,8 @@ box(axes1,'on');
 % Create legend
 legend(axes1,'show');
 
-axis([0 40 0 yCutOff])
+axis([0 50 0 yCutOff])
 ax = gca;
 ax.XGrid = 'off';
 ax.YGrid = 'on';
-set(gca,'FontSize',12)
+set(gca,'FontSize',24)
