@@ -8,9 +8,12 @@ import json
 import urllib2
 import sys
 import random
+from elasticsearch import Elasticsearch 
 
 Config = ConfigParser.ConfigParser()
 Config.read("config.ini")
+
+es=Elasticsearch([{'host':'deep.ics.uci.edu','port':9200}])
 
 def ConfigSectionMap(section):
     dict1 = {}
@@ -57,8 +60,9 @@ def launchCannyInSniper(inputImage, outputImage):
         "-g", "fault_injection/injector=\"range\"",
         "-g", "fault_injection/type=\"toggle\"",
         "-g", "fault_injection/affected="+affected,
-        # "-g", "perf_model/cache/levels=0",
+        "-g", "perf_model/cache/levels=2",
         "--cache-only",
+        "--power",
         # "--gdb-wait",
         "--", appPath,
         "-in", inputImage,
@@ -144,7 +148,7 @@ def process(path):
 
     print (finalScore)
 
-    elasticData['dataset'] = frameName+'_TAGET_0.08'
+    elasticData['dataset'] = frameName
     elasticData['affected'] = affected
     elasticData['frame'] = jump_to_frame
     elasticData['readError']  = read_ber
@@ -153,17 +157,20 @@ def process(path):
     elasticData['isCalibrateFrame'] = isCalibrateFrame
     elasticData['knob']  = knob1
     elasticData['knob2'] = knob2
-    elasticData['target'] = target_ber
     elasticData['kp'] = kp
+    elasticData['target'] = float(target_ber)
     elasticData['ki'] = ki
     elasticData['manual'] = isManual
     elasticData['sampling'] = sampling
     
+
+    with open('energyData.txt') as json_file:  
+      energyData = json.load(json_file)
+
+    elasticData.update(energyData)
     print (elasticData)
-    if (upload_to_elastic):
-      req = urllib2.Request('http://deep.ics.uci.edu:9200/siso/siso_map/')
-      req.add_header('Content-Type', 'application/json')
-      response = urllib2.urlopen(req, json.dumps(elasticData))
+    res=es.index(index='siso',body=elasticData)
+    print (res)
 
 def returnScore():
   f = open("tmp"+str(jump_to_frame)+".txt", "w")
@@ -196,15 +203,15 @@ def main(argv):
         if(key=='isCalibrateFrame'):
           isCalibrateFrame=value
         if(key=='knob1'):
-          knob1=value
+          knob1=float(value)
         if(key=='knob2'):
-          knob2=value
+          knob2=float(value)
         if(key=='set_point'):
-          target_ber=value
+          target_ber=float(value)
         if(key=='kp'):
-          kp=value
+          kp=float(value)
         if(key=='ki'):
-          ki=value
+          ki=float(value)
         if(key=='isManual'):
           isManual=value
         if(key=='sampling'):

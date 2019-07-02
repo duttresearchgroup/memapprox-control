@@ -46,15 +46,17 @@ int main(int argc, char *argv[])
 
     int control_mode = AUTOMATIC_PID; // 0: PID, 1: Recalibration
 
+    // Flag to disable manual/automatic tuning
+    // This can be used to see the effect of a fixed BER
     bool enable_calibration = true;
+
+
     int sampling_frequency = 5;
     bool report_errors = true;
 
     int set_point_ptr = -1;
     int max_set_points = 3;
     int frames_set_point[] = {1, 400, 800};
-                                 
-    double set_point = 0.02;
 
     double current_read_ber = 0;
     double current_write_ber = 0;
@@ -72,10 +74,10 @@ int main(int argc, char *argv[])
     PIDController ctrl;
     
     // L1
-    // double kp=0.00001064;
-    // double ki=0.0005067;
-    // double set_points[] = {0.08, 0.01, 0.05};
-    // double ctrl_out_adjustment = 1.4863e-05;
+    double kp=0.00001064;
+    double ki=0.0005067;
+    double set_points[] = {0.08, 0.01, 0.05};
+    double ctrl_out_adjustment = 1.4863e-05;
 
     //L2
     // double kp=1.06e-05;
@@ -84,12 +86,14 @@ int main(int argc, char *argv[])
     // double ctrl_out_adjustment = 1.4863e-05;
 
     //DRAM
-    double kp=0.000103;
-    double ki=0.00489;
+    // double kp=0.000103;
+    // double ki=0.00489;
+    // double ctrl_out_adjustment = 1.4863e-05;
+    // double set_points[] = {0.08, 0.01, 0.05};
     //double set_points[] = {0.02, 0.001, 0.01};
-    double set_points[] = {0.08, 0.01, 0.05};
-    double ctrl_out_adjustment = 1.4863e-05;
-    
+
+    double set_point = set_points[0];
+
     ctrl.pid.gains(kp,
                    ki,
                    0);
@@ -213,8 +217,8 @@ int main(int argc, char *argv[])
 
                 if (enable_calibration)
                 {
-                    current_read_ber = new_ber;
-                    // current_write_ber = new_ber;
+                    //current_read_ber = new_ber;
+                    current_write_ber = new_ber;
                 }
             }
         }
